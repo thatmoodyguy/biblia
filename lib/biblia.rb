@@ -1,5 +1,6 @@
 require "biblia/version"
 require "httparty"
+require 'uri'
 
 module Biblia
 
@@ -13,6 +14,14 @@ module Biblia
       results = HTTParty.get("#{api_root_url}/find?key=#{api_key}")
       return [] unless results["bibles"]
       results["bibles"]
+    end
+
+    def lookup(reference, bible_version = self.default_bible_version, options = {})
+      raise "not configured" unless configured?
+      url = "#{api_root_url}/content/#{bible_version}.txt.json?passage=#{URI.escape(reference)}&key=#{api_key}"
+      response = HTTParty.get url
+      raise "invalid Bible reference or version" if response.code == 404
+      response 
     end
 
     def version
@@ -29,7 +38,7 @@ module Biblia
       !api_key.empty? && !api_root_url.empty?
     end
 
-    # Doing it this way rather than using mattr_accessor to avoid an dependency on Rails
+    # NOTE: Doing the accessors manually rather than using mattr_accessor to avoid an dependency on Rails
     def api_key
       @@api_key
     end
