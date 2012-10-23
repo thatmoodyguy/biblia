@@ -12,7 +12,7 @@ module Biblia
       raise "not configured" unless configured?
       results = HTTParty.get("#{api_root_url}/find?key=#{api_key}")
       return [] unless results["bibles"]
-      results["bibles"].collect{|b| b["bible"]}
+      results["bibles"]
     end
 
     def version
